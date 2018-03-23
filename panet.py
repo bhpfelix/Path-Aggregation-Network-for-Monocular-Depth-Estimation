@@ -110,10 +110,10 @@ class PAN(nn.Module):
 
         return F.sigmoid(depth)
 
-def test():
-    net = PAN()
-    fms = net(Variable(torch.randn(1,3,600,900)))
-    for fm in fms:
-        print(fm.size())
+# def test():
+#     net = PAN()
+#     fms = net(Variable(torch.randn(1,3,600,900)))
+#     for fm in fms:
+#         print(fm.size())
 
-test()
+# test()
