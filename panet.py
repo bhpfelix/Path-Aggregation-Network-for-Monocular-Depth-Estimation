@@ -11,10 +11,10 @@ class PAN(nn.Module):
 
         resnet = resnet101(pretrained=pretrained)
 
-        # Freeze those weights
-        if fixed_feature_weights:
-            for p in resnet.parameters():
-                p.requires_grad = False
+        # # Freeze those weights
+        # if fixed_feature_weights:
+        #     for p in resnet.parameters():
+        #         p.requires_grad = False
 
         self.layer0 = nn.Sequential(resnet.conv1, resnet.bn1, resnet.relu, resnet.maxpool)
         self.layer1 = nn.Sequential(resnet.layer1)
