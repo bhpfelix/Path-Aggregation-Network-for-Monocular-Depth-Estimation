@@ -30,18 +30,28 @@ class PAN(nn.Module):
         self.latlayer2 = nn.Conv2d( 512, 256, kernel_size=1, stride=1, padding=0)
         self.latlayer3 = nn.Conv2d( 256, 256, kernel_size=1, stride=1, padding=0)
 
+        # Smooth layers
+        self.smooth1 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
+        self.smooth2 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
+        self.smooth3 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
+
         # Downsample layers
         self.downlayer1 = nn.Conv2d(256, 256, kernel_size=3, stride=2, padding=1)
         self.downlayer2 = nn.Conv2d(256, 256, kernel_size=3, stride=2, padding=1)
         self.downlayer3 = nn.Conv2d(256, 256, kernel_size=3, stride=2, padding=1)
 
         # Smooth layers
-        self.smooth1 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
-        self.smooth2 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
-        self.smooth3 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
         self.smooth4 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
         self.smooth5 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
         self.smooth6 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
+
+        # Smooth layers
+        self.smooth7 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
+        self.smooth8 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
+        self.smooth9 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
+
+        # depth prediction layer
+        self.depth = nn.Conv2d(256, 1, kernel_size=3, stride=1, padding=1)
 
     def _upsample_add(self, x, y):
         '''Upsample and add two feature maps.
@@ -87,7 +97,18 @@ class PAN(nn.Module):
         n5 = p5 + F.relu(self.downlayer1(n4))
         n5 = F.relu(self.smooth6(n5))
 
-        return n2 #, n3, n4, n5
+        # Top-down merge again (Double check this design)
+        m5 = n5
+        m4 = self._upsample_add(m5, n4)
+        m4 = self.smooth7(m4)
+        m3 = self._upsample_add(m4, n3)
+        m3 = self.smooth8(m3)
+        m2 = self._upsample_add(m3, n2)
+        m2 = self.smooth9(m2)
+
+        depth = self.depth(m2)
+
+        return depth
 
 def test():
     net = PAN()
