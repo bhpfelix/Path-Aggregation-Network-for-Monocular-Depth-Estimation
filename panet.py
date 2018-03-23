@@ -88,14 +88,14 @@ class PAN(nn.Module):
         p2 = self._upsample_add(p3, self.latlayer3(c2))
         p2 = self.smooth3(p2)
 
-        # Bottom-up Path Augmentation
+        # Bottom-up Path Augmentation (for instance segmentation, there is ReLU after every conv)
         n2 = p2
-        n3 = p3 + F.relu(self.downlayer1(n2))
-        n3 = F.relu(self.smooth4(n3))
-        n4 = p4 + F.relu(self.downlayer1(n3))
-        n4 = F.relu(self.smooth5(n4))
-        n5 = p5 + F.relu(self.downlayer1(n4))
-        n5 = F.relu(self.smooth6(n5))
+        n3 = p3 + self.downlayer1(n2)
+        n3 = self.smooth4(n3)
+        n4 = p4 + self.downlayer1(n3)
+        n4 = self.smooth5(n4)
+        n5 = p5 + self.downlayer1(n4)
+        n5 = self.smooth6(n5)
 
         # Top-down merge again (Double check this design)
         m5 = n5
@@ -108,7 +108,7 @@ class PAN(nn.Module):
 
         depth = self.depth(m2)
 
-        return depth
+        return F.sigmoid(depth)
 
 def test():
     net = PAN()
